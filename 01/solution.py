@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-import functools
-
 from tools.colors import *
 
 def parse(my_input: list[str]) -> tuple[list[int]]:
