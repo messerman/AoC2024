@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import functools
+
 from tools.colors import *
 
 def parse(my_input: list[str]) -> tuple[list[int]]:
@@ -16,21 +18,12 @@ def parse(my_input: list[str]) -> tuple[list[int]]:
 
 def solution1(my_input: list[str]) -> int:
     data = parse(my_input)
-    left = sorted(data[0])
-    right = sorted(data[1])
-    total = 0
-    for i in range(len(left)):
-        total += abs(left[i] - right[i])
-
-    return total
+    return sum(map(lambda l,r: abs(l-r), sorted(data[0]), sorted(data[1])))
 
 def solution2(my_input: list[str]) -> int:
     data = parse(my_input)
     left, right = data
-    total = 0
-    for num in left:
-        total += num * right.count(num)
-    return total
+    return sum(map(lambda num: num * right.count(num), left))
 
 if __name__ == '__main__':
     for part in [1, 2]:
