@@ -25,13 +25,23 @@ def isSafe(levels: list[int]) -> bool:
         return False
     return maxNegativeChange >= -3 and maxPositiveChange <= 3
 
+def isSafeWithDampener(levels: list[int]) -> bool:
+    if isSafe(levels):
+        return True
+    for i in range(len((levels))):
+        tmp = levels.pop(i)
+        if isSafe(levels):
+            return True
+        levels.insert(i, tmp)
+    return False
+
 def solution1(my_input: list[str]) -> int:
     data = parse(my_input)
     return sum(map(isSafe, data))
 
 def solution2(my_input: list[str]) -> int:
     data = parse(my_input)
-    return -1 # TODO
+    return sum(map(isSafeWithDampener, data))
 
 if __name__ == '__main__':
     for part in [1, 2]:
