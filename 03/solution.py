@@ -3,31 +3,40 @@ import math
 import re
 from tools.colors import *
 
-# in: xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))
-# out: [mul(2,4), mul(5,5), mul(11,8), mul(8,5)]
-def parse(my_input: list[str]) -> list[str]:
+def parse(my_input: list[str], pattern: str) -> list[str]:
     result: list[str] = []
-    r = 'mul\(\d{1,3},\d{1,3}\)'
     for line in my_input:
         try:
-            result += re.findall(r, line)
+            result += re.findall(pattern, line)
         except BaseException as e:
             print(line)
             raise e
     return result
 
 def solution1(my_input: list[str]) -> int:
-    data = parse(my_input)
-    r = '\d+'
+    data = parse(my_input, 'mul\(\d{1,3},\d{1,3}\)')
     total = 0
     for mul in data:
-        nums = re.findall(r, mul)
+        nums = re.findall('\d+', mul)
         total += math.prod(map(int, nums))
     return total
 
 def solution2(my_input: list[str]) -> int:
-    data = parse(my_input)
-    return -1 # TODO
+    data = parse(my_input, '(?:don\'t\(\)|do\(\)|mul\(\d{1,3},\d{1,3}\))')
+    enabled = True
+    total = 0
+    for command in data:
+        if command == 'do()':
+            enabled = True
+        elif command == 'don\'t()':
+            enabled = False
+        elif enabled and command[:3] == 'mul':
+            nums = re.findall('\d+', command)
+            total += math.prod(map(int, nums))
+        else:
+            # print(f'ignoring ${command}')
+            continue
+    return total
 
 if __name__ == '__main__':
     for part in [1, 2]:
