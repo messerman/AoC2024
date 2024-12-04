@@ -1,8 +1,25 @@
 #!/usr/bin/env python3
 from tools import grid
 
-def parse(my_input: list[str]) -> grid.Grid:
-    result = grid.Grid(len(my_input[0]), len(my_input))
+class XMasGrid(grid.Grid):
+    def __init__(self, width: int, height: int):
+        super().__init__(width, height)
+
+    def is_X_MAS(self, x: int, y: int) -> bool:
+        cell = self.cells[(x,y)]
+        try:
+            nw = self.cells[cell.nw()]
+            se = self.cells[cell.se()]
+            ne = self.cells[cell.ne()]
+            sw = self.cells[cell.sw()]
+            dr = ''.join(sorted([nw.value, se.value]))
+            dl = ''.join(sorted([ne.value, sw.value]))
+            return dr == 'MS' and dl == 'MS'
+        except:
+            return False
+
+def parse(my_input: list[str]) -> XMasGrid:
+    result = XMasGrid(len(my_input[0]), len(my_input))
     y = 0
     for line in my_input:
         try:
@@ -29,8 +46,13 @@ def solution1(my_input: list[str]) -> int:
     return found
 
 def solution2(my_input: list[str]) -> int:
-    data = parse(my_input)
-    return -1 # TODO
+    g = parse(my_input)
+    found = 0
+    for x in range(g.width):
+        for y in range(g.height):
+            if g.cells[(x,y)].value == 'A':
+                found += 1 if g.is_X_MAS(x, y) else 0
+    return found
 
 if __name__ == '__main__':
     for part in [1, 2]:
