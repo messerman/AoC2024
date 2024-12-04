@@ -28,9 +28,24 @@ class Position:
 
     def west(self) -> tuple[int, int]:
         return (self.x - 1, self.y)
+    
+    def nw(self) -> tuple[int, int]:
+        return (self.x - 1, self.y - 1)
 
-    def neighbors(self) -> list[tuple[int, int]]:
-        return [self.north(), self.south(), self.east(), self.west()]
+    def ne(self) -> tuple[int, int]:
+        return (self.x + 1, self.y - 1)
+
+    def sw(self) -> tuple[int, int]:
+        return (self.x - 1, self.y + 1)
+
+    def se(self) -> tuple[int, int]:
+        return (self.x + 1, self.y + 1)
+
+    def neighbors(self, diagonals=False) -> list[tuple[int, int]]:
+        cells = [self.north(), self.south(), self.east(), self.west()]
+        if diagonals:
+            cells.extend([self.nw(), self.ne(), self.sw(), self.se()])
+        return cells
 
     def go_north(self):
         self.x, self.y = self.north()
@@ -43,3 +58,15 @@ class Position:
 
     def go_west(self):
         self.x, self.y = self.west()
+
+    def go_nw(self):
+        self.x, self.y = self.nw()
+
+    def go_ne(self):
+        self.x, self.y = self.ne()
+
+    def go_sw(self):
+        self.x, self.y = self.sw()
+
+    def go_se(self):
+        self.x, self.y = self.se()
