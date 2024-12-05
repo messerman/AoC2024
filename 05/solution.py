@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from functools import reduce
+
 class Page:
     def __init__(self, page_number: int):
         self.page_number = page_number
@@ -20,10 +22,6 @@ class Page:
         if self.printed:
             return False
 
-        # if len(remaining_pages)< :
-        #     return True
-
-        # print(self, remaining_pages, sep='\n')
         return not self.depenencies.intersection(set(remaining_pages))
 
 def parse(my_input: list[str]) -> tuple[dict[int, 'Page'], list[list[int]]]:
@@ -51,27 +49,24 @@ def parse(my_input: list[str]) -> tuple[dict[int, 'Page'], list[list[int]]]:
             raise e
     return (pages, to_solve)
 
+def is_correctly_ordered(pages: dict[int, 'Page'], update: list[int]) -> bool:
+    remaining = update.copy()
+    while remaining:
+        next_to_print = remaining.pop(0)
+        if pages[next_to_print].can_print(remaining):
+            continue
+        else:
+            return False
+    return True
+
 def solution1(my_input: list[str]) -> int:
-    pages, to_solve = parse(my_input)
-    # print(', '.join(map(str, pages.keys())), '\n\n', '\n'.join(map(str, to_solve)), sep='')
+    data = parse(my_input)
+    pages: dict[int, 'Page'] = data[0]
+    updates: list[list[int]] = data[1]
 
-    total = 0
-    while to_solve:
-        ordering = to_solve.pop(0)
-        remaining = ordering.copy()
-        can_print = True
-        while remaining:
-            next_to_print = remaining.pop(0)
-            if pages[next_to_print].can_print(remaining):
-                # print(f'YES: {ordering}')
-                continue
-            else:
-                # print(f'NO ({next_to_print}): {ordering} ({remaining})')
-                can_print = False
-                break
-        total += ordering[len(ordering)//2] if can_print else 0
-
-    return total
+    f = filter(lambda update: is_correctly_ordered(pages, update), updates)
+    m = map(lambda update: update[len(update)//2], f)
+    return sum(m)
 
 def solution2(my_input: list[str]) -> int:
     data = parse(my_input)

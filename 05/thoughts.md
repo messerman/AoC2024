@@ -5,6 +5,7 @@
 * sets are great, but they don't keep order - had to do a lot of converting between types to get this to work
 * finally had a good reason to use pylint, to try to figure out where I was getting things wrong (I need to figure out how to make that work in VSCode, automatically)
 * final solution was pretty much my initial thought, but using `not dependencies.intersection(set(remaining))` as my filter (ooh, I could have used `filter()`)
+* I decided to clean up the code and use filter and map and sum - looks nicer, but a waste of time
 
 # Part 2
 * 
