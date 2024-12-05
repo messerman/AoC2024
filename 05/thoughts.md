@@ -8,4 +8,6 @@
 * I decided to clean up the code and use filter and map and sum - looks nicer, but a waste of time
 
 # Part 2
-* 
+* I understood what needed to be done, immediately, but got tired (I actually worked on these soon after they came out, instead of waiting until morning)
+* I basically did a bubble sort-style algorithm to re-order the pipelines. Otherwise, I was basically able to re-use everything I wrote for part 1
+* ugly code, but it works

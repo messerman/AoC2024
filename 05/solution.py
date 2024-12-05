@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-from functools import reduce
-
 class Page:
     def __init__(self, page_number: int):
         self.page_number = page_number
@@ -18,11 +16,12 @@ class Page:
     def prints_after(self, page_number: int) -> None:
         self.depenencies.add(page_number)
 
-    def can_print(self, remaining_pages: list[int]) -> bool:
+    def check_printable(self, remaining_pages: list[int]) -> list[int]:
         if self.printed:
-            return False
-
-        return not self.depenencies.intersection(set(remaining_pages))
+            return []
+        
+        intersection = self.depenencies.intersection(set(remaining_pages))
+        return list(intersection)
 
 def parse(my_input: list[str]) -> tuple[dict[int, 'Page'], list[list[int]]]:
     pages: dict[int, Page] = {}
@@ -53,9 +52,7 @@ def is_correctly_ordered(pages: dict[int, 'Page'], update: list[int]) -> bool:
     remaining = update.copy()
     while remaining:
         next_to_print = remaining.pop(0)
-        if pages[next_to_print].can_print(remaining):
-            continue
-        else:
+        if pages[next_to_print].check_printable(remaining):
             return False
     return True
 
@@ -68,9 +65,34 @@ def solution1(my_input: list[str]) -> int:
     m = map(lambda update: update[len(update)//2], f)
     return sum(m)
 
+def swap(l, a, b):
+    l[a], l[b] = l[b], l[a]
+
+def reorder_pages(pages: dict[int, 'Page'], update: list[int]) -> list[int]:
+    ordered_update = update.copy()
+    max_len = len(ordered_update) + 1
+    i = 0
+    while i < len(ordered_update) and not is_correctly_ordered(pages, ordered_update):
+        page_num = ordered_update[i]
+        needed = pages[page_num].depenencies
+        swap_index = max_len
+        for need in needed.intersection(set(ordered_update[i+1:])):
+            idx = ordered_update.index(need)
+            swap_index = min(swap_index, idx)
+        if swap_index == max_len:
+            i += 1
+        else:
+            swap(ordered_update, i, swap_index)
+    return ordered_update
+
 def solution2(my_input: list[str]) -> int:
     data = parse(my_input)
-    return -1 # TODO
+    pages: dict[int, 'Page'] = data[0]
+    updates: list[list[int]] = data[1]
+
+    f = filter(lambda update: not is_correctly_ordered(pages, update), updates)
+    m = map(lambda update: reorder_pages(pages, update), f)
+    return sum(map(lambda update: update[len(update)//2], m))
 
 if __name__ == '__main__':
     for part in [1, 2]:
