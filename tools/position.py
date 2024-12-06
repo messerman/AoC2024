@@ -47,26 +47,29 @@ class Position:
             cells.extend([self.nw(), self.ne(), self.sw(), self.se()])
         return cells
 
+    def move(self, pos: tuple[int, int]) -> None:
+        self.x, self.y = pos
+
     def go_north(self):
-        self.x, self.y = self.north()
+        self.move(self.north())
 
     def go_south(self):
-        self.x, self.y = self.south()
+        self.move(self.south())
 
     def go_east(self):
-        self.x, self.y = self.east()
+        self.move(self.east())
 
     def go_west(self):
-        self.x, self.y = self.west()
+        self.move(self.west())
 
     def go_nw(self):
-        self.x, self.y = self.nw()
+        self.move(self.nw())
 
     def go_ne(self):
-        self.x, self.y = self.ne()
+        self.move(self.ne())
 
     def go_sw(self):
-        self.x, self.y = self.sw()
+        self.move(self.sw)
 
     def go_se(self):
-        self.x, self.y = self.se()
+        self.move(self.se())
