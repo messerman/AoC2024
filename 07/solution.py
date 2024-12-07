@@ -4,7 +4,8 @@ from typing import Callable
 
 OPERATORS: dict[str, Callable] = {
     '+': lambda x,y: x+y,
-    '*': lambda x,y: x*y
+    '*': lambda x,y: x*y,
+    '||': lambda x,y: int(f'{x}{y}')
 }
 
 class CalibrationEquation:
@@ -12,21 +13,18 @@ class CalibrationEquation:
         self.target: int = target
         self.values: list[int] = values
 
-    def solve(self) -> bool:
-        # print(self.target, self.values, ':')
+    def solve(self, num_ops = 2) -> bool:
         if len(self.values) == 0:
             return self.target == 0
         if len(self.values) == 1:
             return self.target == self.values[0]
 
-        # else len(self.values) >= 2:
-        for op in OPERATORS.values():
+        # "else" len(self.values) >= 2:
+        for op in list(OPERATORS.values())[:num_ops]:
             subtotal = op(self.values[0], self.values[1])
-            if CalibrationEquation(self.target, [subtotal] + self.values[2:]).solve():
-                # print(f'PASSED: {self.target}: {self.values}')
+            if CalibrationEquation(self.target, [subtotal] + self.values[2:]).solve(num_ops):
                 return True
 
-        # print(f'FAILED: {self.target}: {self.values}')
         return False
 
 def parse(my_input: list[str]) -> list[CalibrationEquation]:
@@ -42,12 +40,13 @@ def parse(my_input: list[str]) -> list[CalibrationEquation]:
 
 def solution1(my_input: list[str]) -> int:
     data = parse(my_input)
-    total = sum(map(lambda equation: equation.target if equation.solve() else 0, data))        
+    total = sum(map(lambda equation: equation.target if equation.solve(2) else 0, data))        
     return total
 
 def solution2(my_input: list[str]) -> int:
     data = parse(my_input)
-    return -1 # TODO
+    total = sum(map(lambda equation: equation.target if equation.solve(3) else 0, data))        
+    return total
 
 if __name__ == '__main__':
     for part in [1, 2]:
