@@ -42,14 +42,13 @@ def parse(my_input: list[str]) -> grid.Grid:
     return result
 
 def walk(lab_map: grid.Grid) -> grid.Grid:
-    lab = copy.deepcopy(lab_map)
-    guard: Guard = Guard(lab.find('^')[0])
+    guard: Guard = Guard(lab_map.find('^')[0])
 
-    while lab.in_bounds(guard.to_tuple()):
-        if not guard.step(lab):
+    while lab_map.in_bounds(guard.to_tuple()):
+        if not guard.step(lab_map):
             pass
 
-    return lab
+    return lab_map
 
 
 def solution1(my_input: list[str]) -> int:
@@ -68,8 +67,9 @@ def test_for_loop(lab_map: grid.Grid, new_object_pos: tuple[int, int]) -> bool:
 
 def solution2(my_input: list[str]) -> int:
     lab_map = parse(my_input)
+
     guard_start: Guard = Guard(lab_map.find('^')[0]).to_tuple()
-    patrol_path = walk(lab_map)
+    patrol_path = walk(copy.deepcopy(lab_map))
 
     walked = [cell.to_tuple() for cell in patrol_path.find('X')]
     walked.pop(walked.index(guard_start)) # remove guard starting position
