@@ -1,7 +1,14 @@
 #!/usr/bin/env python3
+import copy
+import cProfile
+
 from tools import grid
 
 class Guard(grid.GridCell):
+    def __init__(self, cell: grid.GridCell):
+        super().__init__(cell.x, cell.y, cell.value)
+        self.visited: dict[str, bool] = {repr(self): True}
+
     def turn_right(self) -> None:
         self.value = {'^': '>', '>': 'v', 'v': '<', '<': '^'}[self.value]
 
@@ -17,6 +24,10 @@ class Guard(grid.GridCell):
             success = False
 
         lab_map.move(self, direction(), 'X')
+        # print(self.visited)
+        if repr(self) in self.visited:
+            raise Exception("Loop Detected")
+        self.visited[repr(self)] = True
         return success
 
 def parse(my_input: list[str]) -> grid.Grid:
@@ -30,33 +41,56 @@ def parse(my_input: list[str]) -> grid.Grid:
             raise e
     return result
 
-def solution1(my_input: list[str]) -> int:
-    lab_map = parse(my_input)
-    # print(lab_map)
-    guard: Guard = lab_map.find('^')[0]
-    guard.__class__ = Guard # TODO - there has to be a better way to do this
-    
-    while lab_map.in_bounds(guard.to_tuple()):
-        # print(repr(guard))
-        if not guard.step(lab_map):
-            # print(lab_map, '\n')
+def walk(lab_map: grid.Grid) -> grid.Grid:
+    lab = copy.deepcopy(lab_map)
+    guard: Guard = Guard(lab.find('^')[0])
+
+    while lab.in_bounds(guard.to_tuple()):
+        if not guard.step(lab):
             pass
 
-    # print(repr(guard))
-    # print(lab_map)
+    return lab
 
+
+def solution1(my_input: list[str]) -> int:
+    lab_map = walk(parse(my_input))
     return len(lab_map.find('X'))
 
+def test_for_loop(lab_map: grid.Grid, new_object_pos: tuple[int, int]) -> bool:
+    lab = copy.deepcopy(lab_map)
+    x,y = new_object_pos
+    lab.set(x, y, '#')
+    try:
+        walk(lab)
+    except:
+        return True
+    return False
+
 def solution2(my_input: list[str]) -> int:
-    data = parse(my_input)
-    return -1 # TODO
+    lab_map = parse(my_input)
+    guard_start: Guard = Guard(lab_map.find('^')[0]).to_tuple()
+    patrol_path = walk(lab_map)
+
+    walked = [cell.to_tuple() for cell in patrol_path.find('X')]
+    walked.pop(walked.index(guard_start)) # remove guard starting position
+
+    total = 0
+    for cell in walked:
+        total += 1 if test_for_loop(lab_map, cell) else 0
+
+    return total
 
 if __name__ == '__main__':
     for part in [1, 2]:
         print(f"---- Part { 'One' if part == 1 else 'Two' } ----")
         for file in ['sample.txt', 'input.txt']:
+            filename = file.split('.')[0]
             print(f'-- {file} --')
-            print(str(eval(f'solution{part}')(open(file, 'r').read().split('\n'))))
+            with open(file, 'r') as f:
+                lines = f.read().split('\n')
+                result=''
+                cProfile.run(f'result = solution{part}({lines})', f'{part}-{filename}.pstats')
+                print(result)
             text = input('continue? ')
             if text:
                 break

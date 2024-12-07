@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from tools.colors import *
+import cProfile
 
 def parse(my_input: list[str]) -> list[str]:
     result: list[str] = [] # TODO - more accurate type, also for return type, above
@@ -23,8 +23,13 @@ if __name__ == '__main__':
     for part in [1, 2]:
         print(f"---- Part { 'One' if part == 1 else 'Two' } ----")
         for file in ['sample.txt', 'input.txt']:
+            filename = file.split('.')[0]
             print(f'-- {file} --')
-            print(str(eval(f'solution{part}')(open(file, 'r').read().split('\n'))))
+            with open(file, 'r') as f:
+                lines = f.read().split('\n')
+                result=''
+                cProfile.run(f'result = solution{part}({lines})', f'{part}-{filename}.pstats')
+                print(result)
             text = input('continue? ')
             if text:
                 break
