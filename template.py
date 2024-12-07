@@ -23,11 +23,11 @@ if __name__ == '__main__':
     for part in [1, 2]:
         print(f"---- Part { 'One' if part == 1 else 'Two' } ----")
         for file in ['sample.txt', 'input.txt']:
-            filename = file.split('.')[0]
+            filename = file.split('.', maxsplit=1)[0]
             print(f'-- {file} --')
-            with open(file, 'r') as f:
+            with open(file, 'r', encoding='utf-8') as f:
                 lines = f.read().split('\n')
-                result=''
+                result: int
                 cProfile.run(f'result = solution{part}({lines})', f'{part}-{filename}.pstats')
                 print(result)
             text = input('continue? ')
