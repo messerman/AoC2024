@@ -9,14 +9,24 @@ class Position:
     def __repr__(self):
         return str(self)
     
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Position):
-            return NotImplemented
+    def __eq__(self, other: 'Position') -> bool:
         return self.x == other.x and self.y == other.y
+
+    def __add__(self, other: 'Position') -> 'Position':
+        return Position(self.x + other.x, self.y + other.y)
+
+    def __sub__(self, other: 'Position') -> 'Position':
+        return Position(self.x - other.x, self.y - other.y)
+
+    def __mul__(self, other: int) -> 'Position':
+        return Position(other * self.x, other * self.y)
+
+    def __rmul__(self, other: int) -> 'Position':
+        return self * other
 
     def to_tuple(self) -> tuple[int, int]:
         return (self.x, self.y)
-    
+
     def north(self) -> tuple[int, int]:
         return (self.x, self.y - 1)
 
@@ -73,3 +83,6 @@ class Position:
 
     def go_se(self):
         self.move(self.se())
+
+    def distance_to(self, other: 'Position') -> 'Position':
+        return Position(other.x - self.x, other.y - self.y)

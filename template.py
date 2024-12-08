@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 import cProfile
 
+PARTS = [1, 2]
+FILES = ['sample.txt', 'input.txt']
+
 def parse(my_input: list[str]) -> list[str]:
     result: list[str] = [] # TODO - more accurate type, also for return type, above
     for line in my_input:
@@ -20,9 +23,9 @@ def solution2(my_input: list[str]) -> int:
     return -1 # TODO
 
 if __name__ == '__main__':
-    for part in [1, 2]:
-        print(f"---- Part { 'One' if part == 1 else 'Two' } ----")
-        for file in ['sample.txt', 'input.txt']:
+    for part in PARTS:
+        print(f"---- Part {part} ----")
+        for file in FILES:
             filename = file.split('.', maxsplit=1)[0]
             print(f'-- {file} --')
             with open(file, 'r', encoding='utf-8') as f:
