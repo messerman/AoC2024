@@ -3,6 +3,7 @@ import cProfile
 
 PARTS = [1, 2]
 FILES = ['sample.txt', 'input.txt']
+PAUSE = True
 
 def parse(my_input: list[str]) -> list[str]:
     result: list[str] = [] # TODO - more accurate type, also for return type, above
@@ -33,9 +34,9 @@ if __name__ == '__main__':
                 result: int
                 cProfile.run(f'result = solution{part}({lines})', f'{part}-{filename}.pstats')
                 print(result)
-            text = input('continue? ')
-            if text:
-                break
-        if text:
+            if PAUSE:
+                text = input('continue? ')
+                if text:
+                    break
+        if PAUSE and text:
             break
-

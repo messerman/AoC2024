@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import cProfile
 
-PARTS = [1]#, 2]
+PARTS = [1, 2]
 FILES = ['sample.txt', 'input.txt']
 PAUSE = True
 
@@ -77,8 +77,6 @@ class DiskMap:
         result = 0
         for i, block in self.blocks.items():
             result += i * block
-        # for i, block in enumerate(self.blocks):
-        #     result += i * (int(block) if block != '.' else 0)
         return result
 
     def last_file_idx(self, end: int = -1) -> int:
@@ -97,40 +95,16 @@ class DiskMap:
                 break
         return end
 
-    def defrag(self) -> None:
+    def reorder(self) -> None:
         i = 0
         last_file_idx = self.last_file_idx()
         while i < last_file_idx:
-            # print(''.join(self.expand_blocks()))
-            # print(i, last_file_idx)
             if i in self.blocks:
                 i += 1
                 continue
-            # print(f'found a file block at {last_file_idx} - {self.blocks[last_file_idx]} - swapping with {self.blocks[i]} block at {i}')
             self.blocks[i] = self.blocks.pop(last_file_idx)
             i += 1
             last_file_idx = self.last_file_idx(last_file_idx)
-        print("done")
-
-
-
-        # blocks = list(self.blocks)
-
-        # i = 0
-        # last_file_idx = self.last_file_idx(blocks)
-        # while i < last_file_idx:
-        #     # print(i, blocks[i], last_file_idx, blocks[last_file_idx])
-        #     block = blocks[i]
-        #     if block != '.':
-        #         i += 1
-        #         continue
-        #     blocks[i], blocks[last_file_idx] = blocks[last_file_idx], blocks[i]
-        #     i += 1
-        #     last_file_idx = self.last_file_idx(blocks, last_file_idx)
-
-        #     input(''.join(blocks))
-
-        # return ''.join(blocks)
 
 def parse(my_input: list[str]) -> DiskMap:
     if len(my_input) > 1:
@@ -147,11 +121,7 @@ def parse(my_input: list[str]) -> DiskMap:
 
 def solution1(my_input: list[str]) -> int:
     diskmap = parse(my_input)
-    # print(diskmap)
-    # print(diskmap[0], diskmap[1], diskmap[2], diskmap[3])
-    # print(diskmap.expand_blocks())
-    # print(''.join(diskmap.expand_blocks()))
-    diskmap.defrag()
+    diskmap.reorder()
     return diskmap.checksum()
 
 def solution2(my_input: list[str]) -> int:
