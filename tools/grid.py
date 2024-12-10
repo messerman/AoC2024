@@ -17,17 +17,20 @@ class Grid:
         self.width = width
         self.height = height
 
-    def __str__(self):
-        output = ''
+    def __str__(self) -> str:
+        output: list[str] = []
         for y in range(self.height):
             row = ''
             for x in range(self.width):
                 row += self.at((x, y)).value
-            output += f'\n{row}'
-        return output
+            output.append(row)
+        return'\n'.join(output)
 
     def at(self, pos: tuple[int, int]) -> GridCell:
         return self.cells[pos]
+    
+    def __getitem__(self, index: tuple[int, int]) -> GridCell:
+        return self.at(index)
 
     def set(self, x: int, y: int, value: str) -> bool:
         if not self.in_bounds((x, y)):
@@ -58,9 +61,7 @@ class Grid:
         return x >= 0 and x < self.width and y >= 0 and y < self.height
 
     def search_from(self, x: int, y: int, length: int, diagonals = False) -> list[str]:
-        cell = self.at((x,y))
-        if cell == None:
-            return []
+        cell = self[(x,y)]
         result = []
         directions = [GridCell.north, GridCell.east, GridCell.south, GridCell.west]
         if diagonals:

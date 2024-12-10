@@ -16,3 +16,4 @@ cp template.md ${DATE}/thoughts.md
 
 cd ${DATE}
 ln -s ../tools ./tools
+git add .
