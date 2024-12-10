@@ -6,4 +6,5 @@
 * unfortuantely, the fix to that solution caused my algorithm to be significantly slower - I'm probably going to have to optimize to make part 2 work, whatever it ends up being....
 
 # Part 2
+* first thing's first - renaming `DiskMap.defrag()` to `DiskMap.reorder()`, and then making a NEW `defrag` method to do this part
 * 
