@@ -7,4 +7,11 @@
 
 # Part 2
 * first thing's first - renaming `DiskMap.defrag()` to `DiskMap.reorder()`, and then making a NEW `defrag` method to do this part
-* 
+* this was relatively straightforward to understand, but a pain to implement
+* I ended up splitting `blocks` into `blanks` and `files`, and then zipping them back together to make it look like `blocks` from part 1
+    * `zip`, in python, does not pad if the lists aren't as long as eachother, so had to use `itertools.zip_longest`
+* basic algo was to start at the end of `files`, and then iterate through `blanks` until I found a blank size >= my file size
+* had to change things at both ends of those lists to work
+    * original blank section is replaced with `(0 blanks), (filesize file), (size_diff blanks)`
+    * original file section is replaced with `(0 file), blank, (filesize blank)`
+* got derailed for a while worrying about situations like `00...1..22..` (`231222`) which would turn into `00221.......`, which I thought should be represented as `2217`, but that didn't turn out to be a thing I had to worry about - possibly I would have needed to do so if I had actually bothered to clean up my class and make it "really" work, instead I just shoehorned in the checksum, and left the class in a messy state - should be easy enough to build some sort of function that could rebuild everything, but I'm tired of this problem
