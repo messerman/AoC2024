@@ -2,9 +2,9 @@
 import cProfile
 from tools import grid
 
-PARTS = [1]#, 2]
-FILES = ['sample.txt', 'sample1.txt', 'input.txt']
-PAUSE = False
+PARTS = [1, 2]
+FILES = ['sample1.txt', 'sample2.txt', 'sample.txt', 'input.txt']
+PAUSE = True
 
 def parse(my_input: list[str]) -> grid.Grid:
     result = grid.Grid(len(my_input[0]), len(my_input))
@@ -31,6 +31,20 @@ def dfs(trail_map: grid.Grid, starting_cell: grid.GridCell) -> set[tuple[int, in
             result.update(dfs(trail_map, neighbor_cell))
     return result
 
+def dfs2(trail_map: grid.Grid, starting_cell: grid.GridCell) -> int:
+    current = int(starting_cell.value)
+    if current == 9:
+        return 1
+    
+    total = 0
+    for neighbor in starting_cell.neighbors():
+        if not trail_map.in_bounds(neighbor):
+            continue
+        neighbor_cell = trail_map[neighbor]
+        if int(neighbor_cell.value) == current + 1:
+            total += dfs2(trail_map, neighbor_cell)
+    return total
+
 def solution1(my_input: list[str]) -> int:
     trail_map = parse(my_input)
 
@@ -41,8 +55,13 @@ def solution1(my_input: list[str]) -> int:
     return sum(scores)
 
 def solution2(my_input: list[str]) -> int:
-    data = parse(my_input)
-    return -1 # TODO
+    trail_map = parse(my_input)
+
+    scores: list[int] = []
+    for trailhead in trail_map.find('0'):
+        num_trail_destinations = dfs2(trail_map, trailhead)
+        scores.append(num_trail_destinations)
+    return sum(scores)
 
 if __name__ == '__main__':
     for part in PARTS:
