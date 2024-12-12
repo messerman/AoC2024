@@ -12,7 +12,7 @@ def parse(my_input: list[str]) -> Grid:
         try:
             line = my_input[y]
             for x in range(len(line)):
-                result.set(x, y, line[x])
+                result.set_cell(x, y, line[x])
         except BaseException as e:
             print(line)
             raise e

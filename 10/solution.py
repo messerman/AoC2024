@@ -11,7 +11,7 @@ def parse(my_input: list[str]) -> grid.Grid:
     for y, line in enumerate(my_input):
         try:
             for x, c in enumerate(line):
-                result.set(x, y, c)
+                result.set_cell(x, y, c)
         except BaseException as e:
             print(line)
             raise e

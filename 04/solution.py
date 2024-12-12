@@ -25,7 +25,7 @@ def parse(my_input: list[str]) -> XMasGrid:
         try:
             line_list = list(line)
             for x in range(len(line_list)):
-                result.set(x, y, line_list[x])
+                result.set_cell(x, y, line_list[x])
             y += 1
         except BaseException as e:
             print(line)

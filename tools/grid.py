@@ -32,7 +32,7 @@ class Grid:
     def __getitem__(self, index: tuple[int, int]) -> GridCell:
         return self.at(index)
 
-    def set(self, x: int, y: int, value: str) -> bool:
+    def set_cell(self, x: int, y: int, value: str) -> bool:
         if not self.in_bounds((x, y)):
             return False
         self.cells[(x, y)] = GridCell(x, y, value)
@@ -45,16 +45,42 @@ class Grid:
                 result.append(cell)
         return result
 
+    def groups(self) -> list[list[GridCell]]:
+        visited: set[GridCell] = set()
+        to_visit: set[GridCell] = set(self.cells.values())
+
+        groups: list[list[GridCell]] = []
+        while to_visit:
+            cell = to_visit.pop()
+
+            groups.append(self.connected_group(cell))
+            visited = visited.union(groups[-1])
+
+            to_visit = to_visit.difference(visited)
+        return groups
+
+    def connected_group(self, starting: GridCell) -> list[GridCell]:
+        visited: dict[GridCell, bool] = {}
+        to_visit: list[GridCell] = [starting]
+        while to_visit:
+            cell = to_visit.pop()
+            visited[cell] = True
+            for neighbor in cell.neighbors():
+                if self.in_bounds(neighbor) and self[neighbor] not in visited and self[neighbor].value == starting.value:
+                    to_visit.append(self[neighbor])
+
+        # TODO - can this be simplified to use sets? Do we even need the filter?
+        return list(map(lambda item: item[0], filter(lambda item: item[1], visited.items())))
+
     def move(self, cell: GridCell, pos: tuple[int, int], leave_behind='.') -> bool:
         old_pos = cell.to_tuple()
         cell.move(pos)
         is_in_bounds = self.in_bounds(pos)
         if not is_in_bounds:
             self.cells.pop(old_pos) # remove from our cells
-        self.set(old_pos[0], old_pos[1], leave_behind) # leave behind the right value
+        self.set_cell(old_pos[0], old_pos[1], leave_behind) # leave behind the right value
 
         return True
-
 
     def in_bounds(self, pos: tuple[int, int]) -> bool:
         x,y = pos

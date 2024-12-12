@@ -9,7 +9,9 @@ class Position:
     def __repr__(self):
         return str(self)
     
-    def __eq__(self, other: 'Position') -> bool:
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Position):
+            return False
         return self.x == other.x and self.y == other.y
 
     def __add__(self, other: 'Position') -> 'Position':
@@ -23,6 +25,9 @@ class Position:
 
     def __rmul__(self, other: int) -> 'Position':
         return self * other
+
+    def __hash__(self) -> int:
+        return hash(self.to_tuple())
 
     def to_tuple(self) -> tuple[int, int]:
         return (self.x, self.y)

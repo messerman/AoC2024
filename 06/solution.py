@@ -35,7 +35,7 @@ def parse(my_input: list[str]) -> grid.Grid:
     for y in range(len(my_input)):
         line = my_input[y]
         try:
-            list(map(lambda x: result.set(x, y, line[x]), range(len(line))))
+            list(map(lambda x: result.set_cell(x, y, line[x]), range(len(line))))
         except BaseException as e:
             print(line)
             raise e
@@ -58,7 +58,7 @@ def solution1(my_input: list[str]) -> int:
 def test_for_loop(lab_map: grid.Grid, new_object_pos: tuple[int, int]) -> bool:
     lab = copy.deepcopy(lab_map)
     x,y = new_object_pos
-    lab.set(x, y, '#')
+    lab.set_cell(x, y, '#')
     try:
         walk(lab)
     except:
