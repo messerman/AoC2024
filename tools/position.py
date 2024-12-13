@@ -26,6 +26,12 @@ class Position:
     def __rmul__(self, other: int) -> 'Position':
         return self * other
 
+    def __lt__(self, other: 'Position') -> bool:
+        origin = Position(0, 0)
+        a = self - origin
+        b = other - origin
+        return (a.x**2 + a.y**2) < (b.x**2 + b.y**2)
+
     def __hash__(self) -> int:
         return hash(self.to_tuple())
 
