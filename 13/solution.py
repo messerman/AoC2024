@@ -16,6 +16,13 @@ class ClawMachine:
         self.a_moves: dict[Position, int] = {Position(0, 0): 0}
         self.b_moves: dict[Position, int] = {Position(0, 0): 0}
 
+    def __repr__(self) -> str:
+        return f'ClawMachine({self.a}, {self.b}, {self.prize})'
+
+    def __str__(self) -> str:
+        return f'A={self.a}, B={self.b}, Prize={self.prize})'
+
+    def solutions(self) -> list[tuple[int, int]]:
         cursor = Position(0,0)
         i = 0
         while cursor.x <= self.prize.x and cursor.y <= self.prize.y:
@@ -32,21 +39,28 @@ class ClawMachine:
             self.b_moves[b] = i
             cursor.move(b.to_tuple())
 
-    def __repr__(self) -> str:
-        return f'ClawMachine({self.a}, {self.b}, {self.prize})'
-
-    def __str__(self) -> str:
-        return f'A={self.a}, B={self.b}, Prize={self.prize})'
-
-    def solutions(self) -> list[tuple[int, int]]:
         solutions: list[tuple[int, int]] = []
         for b in reversed(sorted(self.b_moves.keys())):
             needed = self.prize - b
             if needed in self.a_moves:
                 solutions.append((self.a_moves[needed], self.b_moves[b]))
+                break
         return solutions
+    
+    def solve(self) -> tuple[int, int]:
+        ax,ay = self.a.to_tuple()
+        bx,by = self.b.to_tuple()
+        px,py = self.prize.to_tuple()
 
-def parse(my_input: list[str]) -> list[ClawMachine]:
+        A = (py*bx - px*by) // (ay*bx - ax*by)
+        B = (px - ax*A) // bx
+
+        if A * ax + B * bx == px and A * ay + B * by == py:
+            return (A,B)
+
+        return ()
+
+def parse(my_input: list[str], offset=0) -> list[ClawMachine]:
     result: list[ClawMachine] = []
     a: Position
     b: Position
@@ -66,7 +80,7 @@ def parse(my_input: list[str]) -> list[ClawMachine]:
                 position += 1
             else:
                 m = re.match(r'Prize: X=(\d+), Y=(\d+)', line)
-                prize = Position(int(m.groups()[0]), int(m.groups()[1]))
+                prize = Position(int(m.groups()[0])+offset, int(m.groups()[1])+offset)
                 result.append(ClawMachine(a, b, prize))
                 position += 1
         except BaseException as e:
@@ -85,8 +99,13 @@ def solution1(my_input: list[str]) -> int:
     return cost
 
 def solution2(my_input: list[str]) -> int:
-    data = parse(my_input)
-    return -1 # TODO
+    data = parse(my_input, 10000000000000)
+    cost = 0
+    for machine in data:
+        c = machine.solve()
+        if c:
+            cost += 3*c[0] + c[1]
+    return cost
 
 if __name__ == '__main__':
     for part in PARTS:
