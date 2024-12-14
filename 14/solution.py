@@ -8,30 +8,29 @@ PARTS = [1, 2]
 FILES = ['sample.txt', 'input.txt']
 PAUSE = True
 
-class Guard:
-    def __init__(self, start_position: Position, velocity: Position):
-        self.start_position = start_position
+class Guard(Position):
+    def __init__(self, start_x: int, start_y: int, velocity: Position):
+        super().__init__(start_x, start_y)
         self.velocity = velocity
 
     def __repr__(self) -> str:
-        return f'Guard(start_position: {repr(self.start_position)}, velocity: {repr(self.velocity)})'
+        return f'Guard(start_position: {repr(self)}, velocity: {repr(self.velocity)})'
 
     def __str__(self) -> str:
-        return f'({self.start_position}, {self.velocity})'
+        return f'({self}, {self.velocity})'
 
-    def move(self, width: int, height: int, times: int) -> Position:
-        p = self.start_position + (self.velocity * times)
+    def move_steps(self, width: int, height: int, times: int) -> 'Guard':
+        p = self + (self.velocity * times)
         p.x = p.x % width
         p.y = p.y % height
-        return p
+        return Guard(p.x, p.y, self.velocity)
 
 def parse(my_input: list[str]) -> list[Guard]:
     result: list[Guard] = []
     for line in my_input:
         try:
-            # p=0,4 v=3,-3
             m = re.match(r'p=(-?\d+),(-?\d+) v=(-?\d+),(-?\d+)', line)
-            guard = Guard(Position(int(m.groups(0)[0]), int(m.groups(0)[1])), Position(int(m.groups(0)[2]), int(m.groups(0)[3])))
+            guard = Guard(int(m.groups(0)[0]), int(m.groups(0)[1]), Position(int(m.groups(0)[2]), int(m.groups(0)[3])))
             result.append(guard)
         except BaseException as e:
             print(line)
@@ -40,11 +39,9 @@ def parse(my_input: list[str]) -> list[Guard]:
 
 def solution1(my_input: list[str], width: int, height: int) -> int:
     guards = parse(my_input)
-    # print(list(map(str, guards)))
-    # print(guards)
     quadrants = {1:[], 2:[], 3:[], 4:[]}
     for guard in guards:
-        g = guard.move(width, height, 100)
+        g = guard.move_steps(width, height, 100)
         if g.x < width // 2 and g.y < height // 2:
             quadrants[1].append(g)
         elif g.x > width // 2 and g.y < height // 2:
@@ -53,18 +50,50 @@ def solution1(my_input: list[str], width: int, height: int) -> int:
             quadrants[3].append(g)
         elif g.x < width // 2 and g.y > height // 2:
             quadrants[4].append(g)
-    # print(quadrants)
     return len(quadrants[1]) * len(quadrants[2]) * len(quadrants[3]) * len(quadrants[4])
+
+def print_guards(guards: list[Guard], width: int, height: int) -> str:
+    grid = []
+    for y in range(height):
+        grid.append([])
+        for x in range(width):
+            grid[y].append(0)
+    for guard in guards:
+        grid[guard.y][guard.x] += 1
+    output = ''
+    for row in grid:
+        output += '\n' + ''.join(map(lambda g: str(g) if g else ' ', row))
+    return output
 
 def solution2(my_input: list[str], width: int, height: int) -> int:
     guards = parse(my_input)
-    return -1 # TODO
+
+    i = 0
+    updated: list[Guard] = []
+    print_guards(guards, width, height)
+    found = False
+    while not found:
+        updated = []
+        for guard in guards:
+            updated.append(guard.move_steps(width, height, i))
+        output = print_guards(updated, width, height)
+        if output.count('1') == len(guards):
+            print(output)
+            found = True
+            break
+        else:
+            print('.', flush=True, end='')
+        i += 1
+
+    return i
 
 if __name__ == '__main__':
     for part in PARTS:
         print(f"---- Part {part} ----")
         for file in FILES:
             filename = file.split('.', maxsplit=1)[0]
+            if part == 2 and filename != 'input':
+                continue
             print(f'-- {file} --')
             with open(file, 'r', encoding='utf-8') as f:
                 lines = f.read().split('\n')
