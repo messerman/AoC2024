@@ -1,3 +1,5 @@
+import itertools
+
 from .position import Position
 
 class GridCell(Position):
@@ -16,6 +18,20 @@ class Grid:
         self.cells: dict[tuple[int, int], GridCell] = {}
         self.width = width
         self.height = height
+
+    @classmethod
+    def from_lists(cls, gridcells=list[list[GridCell]], width=-1, height=-1, default='.') -> 'Grid':
+        if width == -1:
+            width = max(map(lambda cell: cell.x, itertools.chain.from_iterable(gridcells)))
+        if height == -1:
+            height = max(map(lambda cell: cell.y, itertools.chain.from_iterable(gridcells)))
+
+        grid = cls(width, height, default)
+        for l in gridcells:
+            for cell in l:
+                grid.set_cell(cell.x, cell.y, cell.value)
+
+        return grid
 
     def __str__(self) -> str:
         output: list[str] = []
