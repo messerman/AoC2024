@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 import cProfile
 
-PARTS = [1, 2]
-FILES = ['sample.txt', 'input.txt']
-PAUSE = True
+PARTS = [2]#[1, 2]
+FILES = ['input.txt']#['sample.txt', 'sample1.txt', 'input.txt']
+PAUSE = False#True
 
 class Computer3Bit:
     def __init__(self):
@@ -79,6 +79,7 @@ class Computer3Bit:
 
         i = 0
         while i < len(self.program) - 1:
+            # print(f'({self.A}, {self.B}, {self.C}) - {i}')
             instruction = functions[self.program[i]]
             param = self.program[i+1]
             if instruction == self.out:
@@ -118,8 +119,62 @@ def solution1(my_input: list[str]) -> str:
     computer = parse(my_input)
     return computer.execute()
 
-def solution2(my_input: list[str]) -> str:
+def solution2(my_input: list[str]) -> int:
     computer = parse(my_input)
+    # bst(4) // B = A % 8
+    # bxl(2) // B = B^2
+    # cdv(5) // C = A // 5
+    # bxl(7) // B = B^7
+    # bxc(4) // B = B^C
+    # adv(3) // A = A // 3
+    # out(5) // print(B % 8)
+    # jnz(0) // jump to 0 if A != 0 else halt
+
+    # 2,4,1,2,7,5,1,7,4,4,0,3,5,5,3,0
+
+    #### 0:
+    # B = A % 8
+    # B = B^2
+    # C = A // 5 (A = 5x or 10x)
+    # B = B^7 (???)
+    # B = B^C (B must end up evenly divisible by 8, )
+    # A < 3
+    # B % 8 == 0 (B evenly divisible by 8)
+    # A == 0
+    ###
+
+    computer.program = computer.program[:-2]
+    # computer.A = 177313
+    # print(computer.execute())
+    # return -1
+
+    prev_a = [0]
+    for a in [0,3,5,5,3,0,4,4,7,1,5,7,2,1,4,2]:
+        As = []
+        for prev in prev_a:
+            print(f'looking for: out={a}, A={prev}')
+            # while True:
+            for i in range(7*prev, 10*(prev+1)):
+                computer.A = i
+                computer.B = 0
+                computer.C = 0
+                ans = computer.execute()
+                # print(f'(looking for ({a}, {prev_a})), A={i}: out={ans}, A={computer.A}')
+                if int(ans) == a and computer.A == prev:
+                    print(f'A={i}: out={ans}, A={computer.A}')
+                    if i == 2770 and ans == '5':
+                        continue
+                    # if i == 22187 and ans == '3': # this one seems ok
+                    #     continue
+                    # if i == 90881971 and ans == '7':
+                    #     continue
+
+                    As.append(i)
+                # break
+            # i += 1
+        print(As)
+        prev_a = As
+
     return -1 # TODO
 
 if __name__ == '__main__':
