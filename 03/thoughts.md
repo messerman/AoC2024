@@ -5,4 +5,3 @@
 # Part 2
 * I think I can get what I need from a single regex, but it's going to be complicated
 * different samples - but the new one works for the original solution, still, I wonder if they ran into a problem with parsing and had to change the sample data
-* 

@@ -11,7 +11,7 @@ for th in trailheads:
         return success
 return fail
 ```
-* re-reading the problem statement, I'm going to have to do a bit more than I originally planned, since i can't just stop at the first 9 I find, but need to track how many I find - easy modification
+* re-reading the problem statement, I'm going to have to do a bit more than I originally planned, since I can't just stop at the first 9 I find, but need to track how many I find - easy modification
 
 # Part 2
 * not too big of a shift, and one I almost did as part of part 1, anyway, hopefully it won't be too much change
