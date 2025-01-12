@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import cProfile
+from typing import Iterable
 
 PARTS = [1, 2]
 FILES = ['sample.txt', 'input.txt']
@@ -21,7 +22,6 @@ class Computer:
         return self
     
     def __hash__(self) -> int:
-        t = tuple(list(self.connections) + [self.name])
         return hash(self.name)
 
     def __eq__(self, other: 'Computer') -> bool:
@@ -36,77 +36,79 @@ class Computer:
     def add_connection(self, other: 'Computer') -> None:
         if self != other:
             self.connections.add(other)
-            # for c in other.connections:
-            #     if c not in self.connections:
-            #         self.add_connection(c) # TODO - this should just be a filter
             other.connections.add(self)
 
-class Network:
-    def __init__(self, computers: dict[str, Computer]):
-        self.computers: dict[str, Computer] = computers
-        # self.map_network()
-
+class Network(set):
+    def __init__(self, computers: Iterable[Computer]):
+        assert(len(list(filter(lambda c: not isinstance(c, Computer), computers))) == 0)
+        super().__init__(computers)
+    
+    def __contains__(self, o):
+        if isinstance(o, str):
+            return o in list(map(lambda c: c.name, self))
+        return super().__contains__(o)
+    
     def __repr__(self) -> str:
-        return f'Network({list(self.computers.keys())})'
+        return f'Network({super().__repr__(self)})'
 
     def __str__(self) -> str:
-        computers = '\n\t'.join(list(map(str, self.computers.values())))
+        computers = '\n\t'.join(list(map(str, self)))
         return f'Network:\n\t{computers}'
-
-    def find_reachable(self, source: Computer, visited: set[str] = set()) -> set[str]:
-        visited.add(source.name)
-        # if source.connections.intersection(visited):
-        #     return set(list(map(lambda c: c.name, source.connections)))
-        reachable: set[str] = {source.name}
-        for computer in source.connections:
-            print('\t', computer.name)
-            if computer.name not in visited:
-                reachable.add(computer.name)
-                r = self.find_reachable(computer, visited)
-                if source.name in r:
-                    r.remove(source.name)
-                reachable.update(r)
-        print(f'returning {reachable} for {source.name}')
-        return reachable
-
-    def map_network(self) -> None:
-        for source in list(self.computers.values()):
-            print(f'--- {source} ---')
-            for destination_name in self.find_reachable(source):
-                destination = self.computers[destination_name]
-                source.add_connection(destination)
-
-    def find_trios(self) -> set[tuple[Computer, Computer, Computer]]:
-        result: set[tuple[Computer, Computer, Computer]] = set()
-        for c1 in self.computers.values():
-            # print(c1.connections)
-            for c2 in c1.connections:#map(lambda c: self.computers[c], c1.connections):
-                for c3 in c2.connections:#map(lambda c: self.computers[c], c2.connections):
+    
+    def find_trios(self) -> 'Network["Network"]':
+        result: Network[Network] = Network([])
+        for c1 in self:
+            for c2 in c1.connections:
+                for c3 in c2.connections:
                     if c3 in c1.connections:
-                        result.add(tuple(sorted([c1, c2, c3])))
+                        result.add(Network(Network([c1, c2, c3])))
+        return result
+    
+    def find_chains(self, visited: 'Network', to_visit: 'Network') -> 'Network["Network"]':
+        # print('-----')
+        # print(visited, ',\t', to_visit)
+        # print('---')
+
+        result: Network[Network] = Network([])
+        for computer in list(to_visit):
+            if computer in visited:
+                continue
+            s = Network([computer])
+            v = visited.union(s)
+            # print(v)
+            tv = visited.intersection(computer.connections)
+            # print(tv)
+            for s in self.find_chains(v, tv):
+                result.add(s)
+        # print('\t', result)
+        # print('-----')
         return result
 
 def parse(my_input: list[str]) -> Network:
-    computers: dict[str, Computer] = {}
+    computers: Network = Network([])
     for line in my_input:
         try:
             a,b = line.split('-', maxsplit=1)
-            computers[a] = computers[a] if a in computers else Computer(a)
-            computers[b] = computers[b] if b in computers else Computer(b)
-            computers[a].add_connection(computers[b])
-            computers[b].add_connection(computers[a])
+            A = Computer(a)
+            B = Computer(b)
+            A.add_connection(B)
+            if A.name not in computers:
+                computers.update(Network([A, B]))
         except BaseException as e:
             print(line)
             raise e
-    return Network(computers)
+    return computers
 
 def solution1(my_input: list[str]) -> int:
     data = parse(my_input)
+    print(data)
     return len(list(filter(lambda trio: trio[0].name.startswith('t') or trio[1].name.startswith('t') or trio[2].name.startswith('t'), data.find_trios())))
 
 def solution2(my_input: list[str]) -> int:
     data = parse(my_input)
-    return -1 # TODO
+    for computer in data:
+        print(data.find_chains(Network([computer]), Network(computer.connections)))
+    return -1
 
 if __name__ == '__main__':
     for part in PARTS:

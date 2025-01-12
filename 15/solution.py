@@ -22,6 +22,8 @@ class WarehouseTypes(Enum):
 class WarehouseObject(GridCell):
     def __init__(self, x: int, y: int, value: WarehouseTypes):
         super().__init__(x, y, value.value)
+        self.permeable = True
+        self.stationary = True
 
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}(({self.x},{self.y}):{self.value})'
@@ -32,14 +34,20 @@ class WarehouseObject(GridCell):
 class Robot(WarehouseObject):
     def __init__(self, x: int, y: int):
         super().__init__(x, y, WarehouseTypes('@'))
+        self.permeable = False
+        self.stationary = False
 
 class Wall(WarehouseObject):
     def __init__(self, x: int, y: int):
         super().__init__(x, y, WarehouseTypes('#'))
+        self.permeable = False
+        self.stationary = True
 
 class Box(WarehouseObject):
     def __init__(self, x: int, y: int):
         super().__init__(x, y, WarehouseTypes('O'))
+        self.permeable = False
+        self.stationary = False
 
 class Direction:
     def __init__(self, direction: str):
@@ -51,9 +59,9 @@ class Direction:
     def __str__(self) -> str:
         return self.direction
 
-def parse(my_input: list[str]) -> tuple[dict[WarehouseTypes, list[WarehouseObject]], list[Direction]]:
+def parse(my_input: list[str]) -> tuple[Robot, dict[WarehouseTypes, list[WarehouseObject]], list[Direction]]:
+    robot: Robot
     result_dict: dict[WarehouseTypes, list[WarehouseObject]] = {
-        WarehouseTypes.ROBOT: [],
         WarehouseTypes.WALL: [],
         WarehouseTypes.BOX: [],
         WarehouseTypes.FLOOR: []
@@ -70,7 +78,8 @@ def parse(my_input: list[str]) -> tuple[dict[WarehouseTypes, list[WarehouseObjec
                 if not grid_done:
                     o: WarehouseObject
                     if c == '@':
-                        o = Robot(x, y)
+                        roboyt = Robot(x, y)
+                        continue
                     elif c == '#':
                         o = Wall(x, y)
                     elif c =='O':
@@ -85,11 +94,30 @@ def parse(my_input: list[str]) -> tuple[dict[WarehouseTypes, list[WarehouseObjec
             raise e
     return (result_dict, result_list)
 
-def solution1(my_input: list[str]) -> int:
-    data: tuple[dict[WarehouseTypes, list[WarehouseObject]], list[Direction]] = parse(my_input)
+# TODO - make a generic "collision grid"
+class Warehouse(Grid):
+    def __init__(self, width: int, height: int, default='.'):
+        # TODO - insert more things here
+        super().__init__(width, height, default)
 
-    warehouse: Grid = Grid.from_lists(list(data[0].values()))
-    robot: Robot = data[0][WarehouseTypes.ROBOT]
+    def move(self, cell: GridCell, pos: tuple[int, int], leave_behind='.') -> bool:
+        old_pos = cell.to_tuple()
+        cell.move(pos)
+        is_in_bounds = self.in_bounds(pos)
+        # TODO - check if it will hit any obstacles
+        if not is_in_bounds:
+            self.cells.pop(old_pos) # remove from our cells
+        self.set_cell(old_pos[0], old_pos[1], leave_behind) # leave behind the right value
+        # TODO - if it hits an obstacle, attempt to move that obstacle, as well
+
+        return True
+
+def solution1(my_input: list[str]) -> int:
+    data: tuple[Robot, dict[WarehouseTypes, list[WarehouseObject]], list[Direction]] = parse(my_input)
+
+    robot: Robot = data[0]
+
+    warehouse: Warehouse = Warehouse.from_lists(list(data[0].values()))
     print(warehouse)
 
     moves = data[1]
@@ -105,8 +133,8 @@ def solution1(my_input: list[str]) -> int:
             to_move = robot.north()
         else: # 'v
             to_move = robot.south()
-        if warehouse.in_bounds(to_move): # TODO - account for objects and walls
-            warehouse.move(robot, to_move)
+
+        warehouse.move(robot, to_move)
 
     print(warehouse)
 

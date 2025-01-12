@@ -5,7 +5,7 @@ from copy import copy
 from tools.grid import Grid, GridCell
 
 PARTS = [2]#[1, 2]
-FILES = ['sample.txt']#['sample1.txt', 'sample2.txt', 'sample3.txt', 'sample4.txt', 'sample.txt', 'input.txt']
+FILES = ['sample.txt', 'sample1.txt', 'sample2.txt', 'sample3.txt', 'sample4.txt']#, 'input.txt']
 PAUSE = False
 
 def parse(my_input: list[str]) -> Grid:
@@ -116,9 +116,9 @@ def solution2(my_input: list[str]) -> int:
     # print(grid)
     total = 0
     for group in grid.groups():
-        if group[0].value != 'R':
-            continue
-        print(group)
+        # if group[0].value != 'R':
+        #     continue
+        # print(group)
         fences: set[GridCell] = set()
         for cell in group:
             n = cell.north()
